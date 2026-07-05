@@ -1,61 +1,453 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" type="text/css" href="style.css">
-	<title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Тестирование</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background-color: #1a1a1a;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #333;
+            margin-bottom: 20px;
+        }
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #f44336;
+        }
+        .logo span {
+            color: #4CAF50;
+        }
+
+        /* Setup Screen */
+        #setup-screen, #test-screen, #result-screen {
+            display: none;
+            flex: 1;
+        }
+        #setup-screen.active, #test-screen.active, #result-screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group {
+            background-color: #242424;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #aaa;
+            font-size: 14px;
+        }
+        select {
+            width: 100%;
+            background-color: #121212;
+            color: #fff;
+            border: 1px solid #4CAF50;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            appearance: none;
+        }
+        button {
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-green {
+            background-color: #4CAF50;
+            color: white;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .btn-green:hover { background-color: #45a049; }
+        .btn-dark {
+            background-color: #333;
+            color: white;
+        }
+
+        /* Test Screen */
+        .q-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            color: #888;
+            font-size: 14px;
+        }
+        .question-text {
+            font-size: 18px;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .option {
+            background-color: #242424;
+            border: 2px solid transparent;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .option .circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #555;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .option.correct {
+            border-color: #4CAF50;
+            background-color: rgba(76, 175, 80, 0.1);
+        }
+        .option.correct .circle {
+            border-color: #4CAF50;
+            background-color: #4CAF50;
+        }
+        .option.wrong {
+            border-color: #f44336;
+            background-color: rgba(244, 67, 54, 0.1);
+        }
+        .option.wrong .circle {
+            border-color: #f44336;
+            background-color: #f44336;
+        }
+        .option.disabled {
+            pointer-events: none;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+            margin-bottom: 20px;
+        }
+        .controls button {
+            flex: 1;
+        }
+
+        /* Result Screen */
+        .result-box {
+            background-color: #242424;
+            padding: 40px 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .result-box h2 { margin-bottom: 10px; font-size: 24px; }
+        .score { font-size: 48px; color: #4CAF50; font-weight: bold; margin: 20px 0; }
+    </style>
 </head>
 <body>
-	<h1>День рождение любимой через</h1>
-	<div class="conteiner" id="cont">
-		<div class="card">
-			<span class="value" id="days">00</span>
-			<span class="lable"><b>ДНЕЙ</b></span>
-		</div>
-		<div class="card">
-		<span class="value" id="hours">00</span>
-		<span class="lable"><b>ЧАСОВ</b></span>
-	</div>
-		<div class="card">
-		<span class="value" id="minutes">00</span>
-		<span class="lable"><b>МИНУТ<b></span>
-	</div>
-		<div class="card">
-		<span class="value" id="seconds">00</span>
-		<span class="lable">СЕКУНД</span>
-	</div>
-	</div>
-<script >
-	let newYear = new Date("December 9, 2025 00:00:00").getTime();
-	function timeAlways() {
-          let now = new Date().getTime();
-          let distance = newYear - now;
 
+<div class="container">
+    <header>
+        <div class="logo">Biology <span>Online</span></div>
+    </header>
 
-          if (distance<0) {
-          clearInterval(countInter);
-          document.getElementById('cont').innerHTML = "";
-          document.getElementById('soo').innerHTML = " с новым годом";
-          return;
-          }
-          let second = 1000;
-          let minute = second * 60;
-          let hour = minute * 60;
-          let day = hour * 24;
+    <!-- Экран настройки -->
+    <div id="setup-screen" class="active">
+        <div class="input-group">
+            <label>Количество вопросов</label>
+            <select id="q-count">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="40">40</option>
+                <option value="50">50</option>
+                <option value="60">60</option>
+                <option value="70">70</option>
+                <option value="80">80</option>
+                <option value="90">90</option>
+                <option value="100">100</option>
+            </select>
+        </div>
+        <button class="btn-green" onclick="startTest()">Начать тест</button>
+    </div>
 
-          let days = Math.floor(distance/day);
-          let hours = Math.floor((distance%day)/hour);
-          let minutes = Math.floor((distance%hour)/minute);
-          let seconds = Math.floor((distance%minute)/second);
+    <!-- Экран теста -->
+    <div id="test-screen">
+        <div class="q-header">
+            <span id="q-number">Вопрос №1</span>
+            <span id="q-progress">1 из 20</span>
+        </div>
+        <div class="question-text" id="q-text">Текст вопроса</div>
+        <div class="options" id="options-container">
+            <!-- Варианты ответов генерируются через JS -->
+        </div>
+        <div class="controls">
+            <button class="btn-green" id="next-btn" onclick="nextQuestion()">Далее</button>
+        </div>
+        <button class="btn-green" onclick="finishTest()">Завершить тест</button>
+    </div>
 
-          document.getElementById('days').innerText = days;
-          document.getElementById('hours').innerText = hours;
-          document.getElementById('minutes').innerText = minutes;
-          document.getElementById('seconds').innerText = seconds;
-	}
-	timeAlways();
-	let counInter = setInterval (timeAlways,1000);
+    <!-- Экран результатов -->
+    <div id="result-screen">
+        <div class="result-box">
+            <h2>Тест завершен</h2>
+            <div class="score"><span id="score-correct">0</span> / <span id="score-total">0</span></div>
+            <p>правильных ответов</p>
+        </div>
+        <button class="btn-green" style="margin-top: 20px;" onclick="location.reload()">На главную</button>
+    </div>
+</div>
+
+<script>
+    // База из 100 вопросов
+    const database = [
+        { q: "Ядерный сок называется:", opts: ["Тканевая жидкость", "Цитоплазма", "Кариоплазма", "Гиалоплазма", "Гормоны"], ans: "Кариоплазма" },
+        { q: "Мультидисциплинарная наука о живых организмах", opts: ["Экология", "Биология", "География", "Химия", "Физика"], ans: "Биология" },
+        { q: "Наука, изучающая мир растений", opts: ["Зоология", "Ботаника", "Микология", "Микробиология", "Экология"], ans: "Ботаника" },
+        { q: "Пластиды это органоиды характерные для:", opts: ["животных клеток", "баткериальных клеток", "растительных клеток", "вирусов", "одноклеточных"], ans: "растительных клеток" },
+        { q: "Рибосомы участвуют в синтезе:", opts: ["ДНК", "белка", "углеводов", "РНК", "Мрнк"], ans: "белка" },
+        { q: "«Красная книга» издана впервые в Казахстане:", opts: ["в 1967 году", "в 1968 году", "в 1978 году", "в 1981 году", "в 1996 году"], ans: "в 1978 году" },
+        { q: "Целая природная территория, где растения и животные находятся под особой охраной:", opts: ["Резерв", "Парк", "Заповедники", "Огород", "Теплица"], ans: "Заповедники" },
+        { q: "Как называется наука о клетке:", opts: ["Биология", "Анатомия", "Физиология", "Цитология", "Гистология"], ans: "Цитология" },
+        { q: "Организмы, клетки которых не имеют ядра:", opts: ["ядерные", "эукариоты", "прокариоты", "кариотипы", "гаплоиды"], ans: "прокариоты" },
+        { q: "Где расположен Маркакольский заповедник?", opts: ["в Алматинской области", "на Южном Алтае", "в Восточном Казахстане", "в Заилийском Алатау", "в Акмолинской области"], ans: "в Восточном Казахстане" },
+        { q: "1665 г. он впервые увидел под микроскопом тонкий срез коры растения:", opts: ["Г. Мендель", "Роберт Гук", "К.А. Тимирязев", "С.Г. Навашин", "Н.В. Павлов"], ans: "Роберт Гук" },
+        { q: "Общий признак живых организмов:", opts: ["Есть органы дыхания", "Тело состоит из клеток", "Имеет позвоночник", "имеет замкнутую систему кровообращения", "Живут группами"], ans: "Тело состоит из клеток" },
+        { q: "Придает клетке определенную форму и прочность.", opts: ["Ядро", "Цитоплазма", "Мембрана", "Вакуоль", "Пластид"], ans: "Мембрана" },
+        { q: "Прозрачное, клейкое вещество, похожее на яичный белок:", opts: ["Ядро", "Раковина", "Вакуоль", "Пластид", "Цитоплазма"], ans: "Цитоплазма" },
+        { q: "Участвует в размножении клеток:", opts: ["Ядро", "Цитоплазма", "Ракушка", "Вакуоль", "Пластид"], ans: "Ядро" },
+        { q: "Органоид присуще только для растительных клеток:", opts: ["Ядро", "Цитоплазма", "ЭПТ", "Мембрана", "Пластид"], ans: "Пластид" },
+        { q: "Светоприемная часть микроскопа:", opts: ["Окуляр", "Подошва", "Зеркало", "Ручка", "Объектив"], ans: "Зеркало" },
+        { q: "Название части микроскопа с двумя линзами:", opts: ["Зеркало", "Окуляр", "Винт", "Стопа", "Ручка"], ans: "Окуляр" },
+        { q: "Органоид присуще только для растительных клеток:", opts: ["Ядро", "Цитоплазма", "Лизосома", "Мембрана", "Пластид"], ans: "Пластид" },
+        { q: "Часть, регулирующая давление жидкости внутри клеток растении:", opts: ["Ядро", "Цитоплазма", "Вакуоль", "Пластид", "Мембрана"], ans: "Вакуоль" },
+        { q: "Название части микроскопа с несколькими линзами.", opts: ["Зеркало", "Объектив", "Ручка", "стопа", "Винт"], ans: "Объектив" },
+        { q: "Подземная часть растении:", opts: ["Цветок", "Росток", "Корень", "Лист", "Соцветие"], ans: "Корень" },
+        { q: "Зародыш семени развивается из корневища:", opts: ["Косвенный корень", "Вторичный корень", "Главный корень", "Стебель", "Лист"], ans: "Главный корень" },
+        { q: "Принимает участие в поглощении питательных веществ из почвы:", opts: ["Косвенный корень", "Вторичный корень", "Главный корень", "Стебель", "Лист"], ans: "Главный корень" },
+        { q: "Органические удобрения.", opts: ["Азот", "Фосфор", "Калий", "Навоз", "Ясень"], ans: "Навоз" },
+        { q: "Минеральные удобрения:", opts: ["Новоз", "Торф", "горсть земли", "куриный помет", "Азот"], ans: "Азот" },
+        { q: "Часть, регулирующая давление жидкости внутри клеток растении:", opts: ["Ядро", "Цитоплазма", "Вакуоль", "Пластид", "Мембрана"], ans: "Вакуоль" },
+        { q: "Почка, расположенная в пазухе листа:", opts: ["Потолок", "Косвенный", "Закрытый", "Запасной", "Укороченный"], ans: "Косвенный" },
+        { q: "Бутон, перешедший в состояние покоя", opts: ["Распахнувший", "Косвенный", "Закрытый", "Запасной", "Укороченный"], ans: "Запасной" },
+        { q: "Ученый, впервые описавший роль хлорофилла в фотосинтезе?", opts: ["С.Г. Навашин", "Г. Мендель", "К.А. Тимирязев", "Я. Сеченов", "Д.И. Ивановский"], ans: "К.А. Тимирязев" },
+        { q: "Образование сахара в растениях происходит только...", opts: ["В ядре", "В хлоропластах", "В вакуоли", "В цитоплазме", "В мембране"], ans: "В хлоропластах" },
+        { q: "Зимние побеги подготавливаются:", opts: ["Зимой", "Весной", "Летом", "Осенью", "Ранней весной"], ans: "Летом" },
+        { q: "Тонкая часть цветка, похожая на лист:", opts: ["Цветочный бутон", "Цветочная основа", "Корень", "Лепестки", "Материнская клетка"], ans: "Лепестки" },
+        { q: "Расширенное место вверху стебля цветка, где крепятся все части цветка:", opts: ["Цветочный бутон", "Цветочная основа", "В миску", "Цветок", "Материнство"], ans: "Цветочная основа" },
+        { q: "Состоит из нити и пыльцы:", opts: ["Стебли", "Тычинка", "Пестик", "Лепесток", "Бутон цветка"], ans: "Тычинка" },
+        { q: "Расположен в центре цветка.", opts: ["Корень", "Тычинка", "Пестик", "Лепесток", "Бутон цветка"], ans: "Пестик" },
+        { q: "Однодомное растение.", opts: ["Конопля", "Крапива", "Кукуруза", "Тополь", "Ива"], ans: "Кукуруза" },
+        { q: "Двудомные растения", opts: ["Конопля", "Кукуруза", "Тыква", "Береза", "Фундук"], ans: "Конопля" },
+        { q: "Группа мелких цветов, расположенных в определенном порядке:", opts: ["Цветок", "Фрукты", "Соцветие", "Семена", "Лист"], ans: "Соцветие" },
+        { q: "Растение со сложным колосовидным соцветием:", opts: ["Пшеница", "Клевер", "Морковь", "Кукуруза", "Лук"], ans: "Пшеница" },
+        { q: "Орган, функция которого разгонять кровь?", opts: ["Легкие", "Сердце", "Почки", "Печень", "Щитовидная железа"], ans: "Сердце" },
+        { q: "Соцветие сережка:", opts: ["Береза", "Тополь", "Подсолнечник", "Дуб", "Лук"], ans: "Береза" },
+        { q: "Соцветие подсолнечника", opts: ["Просто шип", "Собык", "Бахрома", "Голова", "Корзинка"], ans: "Корзинка" },
+        { q: "Попадание пыльцы тычинки в пестик:", opts: ["Созревание", "Развитие", "Размножение", "Опыление", "Оплодотворение"], ans: "Опыление" },
+        { q: "Часть, участвующая в размножении цветка.", opts: ["Лист", "бутон", "Соцветие и тычинка", "Тычинка и пестик", "пестик и корень"], ans: "Тычинка и пестик" },
+        { q: "Биология изучает -", opts: ["галактику", "мелкие микроорганизмы", "все живое", "растения, животных", "литосферу"], ans: "все живое" },
+        { q: "Растение, опыляемое пыльниками перекрестно:", opts: ["Хмель", "Кукуруза", "Вишня", "Лимон", "Береза"], ans: "Вишня" },
+        { q: "Растение, опыляемое ветром перекрестно:", opts: ["Вишня", "Слива", "Чай", "Лимон", "Рожь"], ans: "Рожь" },
+        { q: "Одноклеточный, сухой плод с одним или несколькими семенами:", opts: ["Фасоль", "Горох", "Кавачак", "Орех", "Грецкий орех"], ans: "Орех" },
+        { q: "Повислые (крылатые) орешки имеются у", opts: ["Береза", "Рис", "Тыква", "Горох", "Клевер"], ans: "Береза" },
+        { q: "Органические удобрения.", opts: ["Азот", "Фосфор", "Калий", "Новоз", "Ясень"], ans: "Новоз" },
+        { q: "Крупноплодный вид растения рода земляники:", opts: ["Береза", "Клубника", "Тауссаг", "Пшеница", "Рис"], ans: "Клубника" },
+        { q: "Защищает семена от повреждений.", opts: ["семенной пупок", "семенная кожура", "Реклама семян", "Эндосперм", "Бутон"], ans: "семенная кожура" },
+        { q: "Раздел биологии, которая изучает растении?", opts: ["Ботаника", "Флористика", "Фауна", "Зоология", "Микология"], ans: "Ботаника" },
+        { q: "Однолистное растение:", opts: ["Огурец", "Тыква", "Дыня", "Пшеница", "Подсолнечник"], ans: "Пшеница" },
+        { q: "Собирается запас питательных веществ:", opts: ["В ядре", "У плода", "В эндосперме", "В оболочке", "В первом корневище"], ans: "В эндосперме" },
+        { q: "Как распределяются тонкие, легкие, сухие семена:", opts: ["Ветром", "Через воду", "Через птиц", "Через животных", "Самостоятельно"], ans: "Ветром" },
+        { q: "Прорастает при температуре 1-5°C:", opts: ["Пшеница", "Кукуруза", "Тыква", "Дыня", "Огурец"], ans: "Пшеница" },
+        { q: "Распространение семян тополя", opts: ["Ветром", "Через воду", "Через птиц", "Через животных", "Самостоятельно"], ans: "Ветром" },
+        { q: "В 1870-1880 годах он экспериментально доказал существование мелких организмов:", opts: ["А. Павлов", "Луи Пастер", "Д. И. Ивановский", "М. Бейерник", "Н.И. Вавилов"], ans: "Луи Пастер" },
+        { q: "Наука, изучающая строение и свойства мелких живых организмов, невидимых глазу:", opts: ["микология", "Микробиология", "Генетика", "Экология", "Биохимия"], ans: "Микробиология" },
+        { q: "Мы выдыхаем -", opts: ["кислород", "углекислый газ", "водород", "урохром", "азот"], ans: "углекислый газ" },
+        { q: "Бактерии размножаются:", opts: ["Через споры", "Путем деления", "Через перекреста", "Путём почкования", "Через оптоволокно"], ans: "Путем деления" },
+        { q: "Используется в пищевой промышленности:", opts: ["Клубневая бактерия", "Бактерии гниения", "Кисломолочные бактерии", "Болезнетворные бактерии", "Цианобактерии"], ans: "Кисломолочные бактерии" },
+        { q: "Кто в 1882 г. в легких человека обнаружил бактерии, вызывающие заболевание туберкулез?", opts: ["Р. Хук", "Л. Пастер", "Д. И. Ивановский", "Р. Кох", "А. Левенгук"], ans: "Р. Кох" },
+        { q: "Он проложил путь развитию микробиологии:", opts: ["А. Левенгук", "Л. Пастер", "Р. Хук", "Д. И. Ивановский", "Р. Кох"], ans: "Л. Пастер" },
+        { q: "Превращает перегной в почве в минеральные вещества:", opts: ["Клубневая бактерия", "Бактерии гниения", "Молочнокислые бактерии", "Болезнетворные бактерии", "Цианобактерии"], ans: "Бактерии гниения" },
+        { q: "В 1870-1880 годах он экспериментально доказал существование мелких организмов:", opts: ["А. Павлов", "Луи Пастер", "Д. И. Ивановский", "М. Бейерник", "Н.И. Вавилов"], ans: "Луи Пастер" },
+        { q: "Бактерия чумы сохраняется в почве:", opts: ["1 день", "25 дней", "3 месяца", "1 год", "5 лет"], ans: "3 месяца" },
+        { q: "В 1892 году он изучал сигаретный дым и обнаружил вирус:", opts: ["М. В. Бейерник", "Д. И. Ивановский", "Р. Хук", "Л. Пастер", "Р. Кох"], ans: "Д. И. Ивановский" },
+        { q: "Он ввёл в науку термин «вирус» в 1899 году:", opts: ["М. В. Бейерник", "Д. И. Ивановский", "Р. Хук", "Л. Пастер", "Р. Кох"], ans: "М. В. Бейерник" },
+        { q: "Паразит, живущий внутри клетки:", opts: ["Бактерии", "Вирус", "Цианобактерии", "Носток", "Гормогония"], ans: "Вирус" },
+        { q: "Наука о грибах:", opts: ["Микробиология", "Анатомия", "Ботаника", "Зоология", "Микология"], ans: "Микология" },
+        { q: "Одноклеточный гриб:", opts: ["Черника", "Белый гриб", "Тополь", "Дрожжи", "Хворост"], ans: "Дрожжи" },
+        { q: "Плесневый гриб", opts: ["Черника", "Мукор", "Тополь", "Дрожжи", "Ополь"], ans: "Мукор" },
+        { q: "Гриб-паразит, растущий на стволах деревьев:", opts: ["Ополь", "Трутовики", "Тополь", "Дрожжи", "Черника"], ans: "Трутовики" },
+        { q: "Ядовитый гриб", opts: ["Шампиньон", "Опенок", "Лисичка", "Мухомор красный", "Волнушка"], ans: "Мухомор красный" },
+        { q: "Съедобный гриб:", opts: ["Строчок обыкновенный", "Мухомор красный", "Шампиньон", "Весельчак", "Бледная поганка"], ans: "Шампиньон" },
+        { q: "Гриб, питающийся мертвой органикой.", opts: ["Акунтак", "Тат", "Кастауыш", "Пенициллиум", "Дингкулак"], ans: "Пенициллиум" },
+        { q: "Его получают из плесневого гриба:", opts: ["Гиббереллин", "Боверин", "Пенициллин", "Крахмал", "Алкоголь"], ans: "Пенициллин" },
+        { q: "Основа аппарата фотосинтеза?", opts: ["Водоросли", "Жиры", "Углеводы", "Хлоропласты", "Белки"], ans: "Хлоропласты" },
+        { q: "Какое вещество образуется в результате фотосинтеза?", opts: ["Минеральная соль", "Крахмал", "Жир", "Газ", "Белок"], ans: "Крахмал" },
+        { q: "Какая наука изучает наследственность организмов?", opts: ["Фотосинтез", "ДНК", "Ячейка", "Генетика", "РНК"], ans: "Генетика" },
+        { q: "Какой белок содержится в эритроцитах?", opts: ["Рибосома", "Липид", "Инсулин", "Гемоглобин", "Фермент"], ans: "Гемоглобин" },
+        { q: "Ферменты по природе это", opts: ["Белки", "Минералы", "Углеводы", "Жиры", "Липиды"], ans: "Белки" },
+        { q: "Где расположены все органоиды клетки:", opts: ["В клеточнои центре", "В ядре", "В пластидах", "В цитоплазме", "В митохондрии"], ans: "В цитоплазме" },
+        { q: "Газ, поглощаемый при фотосинтезе:", opts: ["Азот", "Кислород", "Углекислый газ", "Водород", "Гелий"], ans: "Углекислый газ" },
+        { q: "Что из перечисленного образуется в процессе фотосинтеза?", opts: ["Углекислый газ", "Вода", "Глюкоза", "Энергетика", "Воздух"], ans: "Глюкоза" },
+        { q: "Нуклеотид, комплементарный аденину:", opts: ["Цитозин", "Урацил", "Гуанин", "Аденин", "Тимин"], ans: "Тимин" },
+        { q: "Совокупность внутренних признаков, характерных для организма:", opts: ["Фенотип", "Генотип", "Органоид", "Полимер", "Эпистаз"], ans: "Генотип" },
+        { q: "Бактерии размножаются путем:", opts: ["Через споры", "Деления", "Перекрестно", "Путём почкования", "Через оптоволокно"], ans: "Деления" },
+        { q: "Используется в пищевой промышленности.", opts: ["Клубневая бактерия", "Гниющие бактерии", "Кисломолочные бактерии", "Болезнетворные бактерии", "Цианобактерии"], ans: "Кисломолочные бактерии" },
+        { q: "1882 В легких человека были обнаружены бактерии, вызывающие заболевание туберкулезом, кем?", opts: ["Р. Хук", "Л. Пастер", "Д. И. Ивановский", "Р. Кох", "А. Левенгук"], ans: "Р. Кох" },
+        { q: "Он проложил путь развитию микробиологии.", opts: ["А. Левенгук", "Л. Пастер", "Р. Хук", "Д. И. Ивановский", "Р. Кох"], ans: "Л. Пастер" },
+        { q: "Превращает перегной в почве в минеральные вещества.", opts: ["Клубневая бактерия", "Бактерии гинения", "Молочнокислые бактерии", "Болезнетворные бактерии", "Цианобактерии"], ans: "Бактерии гинения" },
+        { q: "Бактериям нужны жгутики для:", opts: ["Опыления", "Передвижения", "Пищеварения", "Дыхания", "Мочиться"], ans: "Передвижения" },
+        { q: "Образование сахара в растениях происходит только...", opts: ["В ядре", "В хлоропластах", "В вакуоли", "В цитоплазме", "В мембране"], ans: "В хлоропластах" },
+        { q: "Зимние побеги подготавливают:", opts: ["Зимой", "Весной", "Летом", "Осенью", "Ранней весной"], ans: "Летом" },
+        { q: "Нуклеотид, комплементарный цитозину:", opts: ["Цитозин", "Урацил", "Гуанин", "Аденин", "Тимин"], ans: "Гуанин" },
+        { q: "Междисциплинарная наука о живых организмах:", opts: ["Экология", "Биология", "География", "Химия", "Физика"], ans: "Биология" }
+    ];
+
+    let currentQuestions = [];
+    let currentIndex = 0;
+    let correctCount = 0;
+    let isAnswered = false;
+
+    // Вспомогательная функция для перемешивания массива
+    function shuffle(array) {
+        let currentIndex = array.length, randomIndex;
+        while (currentIndex !== 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        }
+        return array;
+    }
+
+    // Запуск теста
+    function startTest() {
+        const count = parseInt(document.getElementById('q-count').value);
+        
+        // Перемешиваем всю базу и берем нужное количество
+        const shuffledDB = shuffle([...database]);
+        currentQuestions = shuffledDB.slice(0, count);
+        
+        currentIndex = 0;
+        correctCount = 0;
+
+        document.getElementById('setup-screen').classList.remove('active');
+        document.getElementById('test-screen').classList.add('active');
+        
+        loadQuestion();
+    }
+
+    // Загрузка вопроса на экран
+    function loadQuestion() {
+        isAnswered = false;
+        const qData = currentQuestions[currentIndex];
+        
+        document.getElementById('q-number').innerText = `Вопрос №${currentIndex + 1}`;
+        document.getElementById('q-progress').innerText = `${currentIndex + 1} из ${currentQuestions.length}`;
+        document.getElementById('q-text').innerText = qData.q;
+
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+
+        // Перемешиваем варианты ответов
+        const shuffledOptions = shuffle([...qData.opts]);
+        
+        const labels = ['А)', 'В)', 'С)', 'D)', 'E)']; // Буквы для визуального стиля
+
+        shuffledOptions.forEach((optText, i) => {
+            const div = document.createElement('div');
+            div.className = 'option';
+            div.onclick = () => selectOption(div, optText, qData.ans);
+            
+            div.innerHTML = `
+                <div class="circle"></div>
+                <div>${labels[i]} ${optText}</div>
+            `;
+            optionsContainer.appendChild(div);
+        });
+    }
+
+    // Обработка клика по варианту
+    function selectOption(selectedElement, selectedText, correctText) {
+        if (isAnswered) return; // Блокировка повторного клика
+        isAnswered = true;
+
+        const optionsContainer = document.getElementById('options-container');
+        const allOptions = optionsContainer.children;
+
+        // Блокируем все варианты
+        for (let opt of allOptions) {
+            opt.classList.add('disabled');
+        }
+
+        if (selectedText === correctText) {
+            selectedElement.classList.add('correct');
+            correctCount++;
+        } else {
+            selectedElement.classList.add('wrong');
+            // Ищем правильный и подсвечиваем зеленым
+            for (let opt of allOptions) {
+                if (opt.innerText.includes(correctText)) {
+                    opt.classList.add('correct');
+                }
+            }
+        }
+    }
+
+    function nextQuestion() {
+        if (currentIndex < currentQuestions.length - 1) {
+            currentIndex++;
+            loadQuestion();
+        } else {
+            finishTest();
+        }
+    }
+
+    function finishTest() {
+        document.getElementById('test-screen').classList.remove('active');
+        document.getElementById('result-screen').classList.add('active');
+        
+        document.getElementById('score-correct').innerText = correctCount;
+        document.getElementById('score-total').innerText = currentQuestions.length;
+    }
 </script>
 </body>
 </html>
